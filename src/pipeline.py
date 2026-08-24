@@ -1,10 +1,9 @@
-from src.agents import (
-    build_schema_agent,
-    build_sql_generator_agent,
-    build_sql_validator_agent,
-    build_sql_critic_agent
-)
-
+from src.agents.schema import build_schema_agent
+from src.agents.sql_generator import build_sql_generator_agent
+from src.agents.sql_validator import build_sql_validator_agent
+from src.agents.sql_critic import build_sql_critic_agent
+from src.tools.execute_sql import execute_sql
+from rich import print
 
 def get_agent_output(result):
 
@@ -41,7 +40,7 @@ Analyze the database schema required to answer this question.
     })
 
     state["schema"] = get_agent_output(schema_result)
-
+    state["schema agent result"] = schema_result
     print(state["schema"])
 
 
@@ -72,7 +71,7 @@ Generate the SQL query.
     })
 
     state["sql"] = get_agent_output(sql_result)
-
+    state["sql agent result"] = sql_result
     print("Generated SQL:")
     print(state["sql"])
 
@@ -107,7 +106,7 @@ Validate this SQL.
     })
 
     state["validation"] = get_agent_output(validation_result)
-
+    state["validation agent result"] = validation_result
     print(state["validation"])
 
 
@@ -115,7 +114,7 @@ Validate this SQL.
     print("STEP 4 — SQL EXECUTION")
     print("=" * 60)
 
-    from src.tools import execute_sql
+    
 
     execution_result = execute_sql.invoke({
         "db_id": db_id,
@@ -163,7 +162,14 @@ Critically evaluate the SQL.
     })
 
     state["critic"] = get_agent_output(critic_result)
-
+    state["critic agent result"] = critic_result
     print(state["critic"])
+
+    
+    print("\n" + "=" * 60)
+    print("FINAL STATE")
+    print("=" * 60)
+    print(state)
+    
 
     return state
